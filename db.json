@@ -9,13 +9,13 @@
         {
             "id": 1,
             "description": "Sample NFT for demo",
-            "image": "https://cdn.pixabay.com/photo/2019/10/16/09/09/doraemon-4553920_1280.png",
+            "image": "https://cdn.pixabay.com/photo/2013/01/09/17/56/doraemon-74473_1280.jpg",
             "name": "DORAEMON 1"
         },
         {
             "id": 2,
             "description": "Sample NFT for demo",
-            "image": "https://cdn.pixabay.com/photo/2019/10/16/09/09/doraemon-4553920_1280.png",
+            "image": "https://cdn.pixabay.com/photo/2019/02/24/03/51/iron-4016951_1280.jpg",
             "name": "DORAEMON 2"
         }
     ]

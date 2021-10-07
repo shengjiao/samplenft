@@ -1,22 +1,577 @@
 {
-    "tokens": [
-        {
-            "id": 0,
-            "description": "Sample NFT for demo",
-            "image": "https://cdn.pixabay.com/photo/2019/10/16/09/09/doraemon-4553920_1280.png",
-            "name": "DORAEMON 0"
-        },
-        {
-            "id": 1,
-            "description": "Sample NFT for demo",
-            "image": "https://cdn.pixabay.com/photo/2013/01/09/17/56/doraemon-74473_1280.jpg",
-            "name": "DORAEMON 1"
-        },
-        {
-            "id": 2,
-            "description": "Sample NFT for demo",
-            "image": "https://cdn.pixabay.com/photo/2019/02/24/03/51/iron-4016951_1280.jpg",
-            "name": "DORAEMON 2"
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "opennft-data-server",
+    "description": "An opennft data server for hosting metadata and files",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "127.0.0.1:8888",
+  "basePath": "/api",
+  "tags": [
+    {
+      "name": "Users",
+      "description": "API for users in the system"
+    },
+    {
+      "name": "Auth",
+      "description": "API for auth token"
+    },
+    {
+      "name": "Files",
+      "description": "API for files in the system"
+    },
+    {
+      "name": "Metadatas",
+      "description": "API for metadatas in the system"
+    },
+    {
+      "name": "Rawdatas",
+      "description": "API for raw datas in the system"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "Create new user in system",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-auth-token",
+            "description": "JWT token",
+            "schema": {
+              "type": "string",
+              "format": "JWT"
+            },
+            "required": true
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "description": "user we want to create, name should be unique",
+            "schema": {
+              "$ref": "#/definitions/UserModel"
+            },
+            "required": true
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "New user is created",
+            "schema": {
+              "$ref": "#/definitions/UserResponseModel"
+            }
+          },
+          "400": {
+            "description": "Validation error or user already exists",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Access Denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
         }
-    ]
+      }
+    },
+    "/auth": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "description": "Authenticate user",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User that we want to authenticate",
+            "schema": {
+              "$ref": "#/definitions/AuthModel"
+            },
+            "required": true
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "User is authenticated",
+            "schema": {
+              "$ref": "#/definitions/AuthResponseModel"
+            }
+          },
+          "400": {
+            "description": "Validation error or invalid username/password",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/files/": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "description": "Upload new file",
+        "consumes": "multipart/form-data",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-auth-token",
+            "description": "JWT token",
+            "schema": {
+              "type": "string",
+              "format": "JWT"
+            },
+            "required": true
+          },
+          {
+            "in": "formData",
+            "name": "fileupload",
+            "type": "file",
+            "description": "file to be uploaded",
+            "required": true
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "New metadata is created",
+            "schema": {
+              "$ref": "#/definitions/FileUploadResponseModel"
+            }
+          }
+        }
+      }
+    },
+    "/files/{filename}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "filename",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "description": "filename that we want to find"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "description": "Get file by filename",
+        "produces": [
+          "file/png",
+          "file/gif",
+          "file/jpeg",
+          "file/pdf"
+        ],
+        "responses": {
+          "200": {
+            "description": "File by filename was found",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/metadatas": {
+      "post": {
+        "tags": [
+          "Metadatas"
+        ],
+        "description": "Create new metadata",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-auth-token",
+            "description": "JWT token",
+            "schema": {
+              "type": "string",
+              "format": "JWT"
+            },
+            "required": true
+          },
+          {
+            "name": "metadata",
+            "in": "body",
+            "description": "Metadata that we want to create",
+            "schema": {
+              "$ref": "#/definitions/MetadataModel"
+            },
+            "required": true
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "New metadata is created",
+            "schema": {
+              "$ref": "#/definitions/MetadataResponseModel"
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Access Denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Metadatas"
+        ],
+        "description": "Get all metadatas",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "description": "page number to display",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "size limit to display",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "metadatas with pagination",
+            "schema": {
+              "$ref": "#/definitions/MetadataListResponseModel"
+            }
+          }
+        }
+      }
+    },
+    "/metadatas/{metadataId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "metadataId",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "description": "Metadata id that we want to find"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Metadatas"
+        ],
+        "description": "Get metadata by id",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Metadata by id was found",
+            "schema": {
+              "$ref": "#/definitions/MetadataResponseModel"
+            }
+          },
+          "404": {
+            "description": "Metadata by given metadataId was not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/rawdatas": {
+      "post": {
+        "tags": [
+          "Rawdatas"
+        ],
+        "description": "Create new raw data",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-auth-token",
+            "description": "JWT token",
+            "schema": {
+              "type": "string",
+              "format": "JWT"
+            },
+            "required": true
+          },
+          {
+            "name": "fileType",
+            "in": "formData",
+            "description": "fileType: png, jpeg, jpg, gif, pdf",
+            "type": "string",
+            "enum": ["png", "jpeg", "jpg", "gif", "pdf"],
+            "required": true
+          },
+          {
+            "name": "name",
+            "in": "formData",
+            "description": "name of the token",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "description",
+            "in": "formData",
+            "description": "description of the token",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "formData",
+            "name": "fileupload",
+            "type": "file",
+            "description": "file to be uploaded",
+            "required": true
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "New raw data is created",
+            "schema": {
+              "$ref": "#/definitions/RawdataResponseModel"
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Access Denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "properties": {
+        "code": {
+          "type": "integer"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "UserModel": {
+      "required": [
+        "name",
+        "password",
+        "isAdmin"
+      ],
+      "properties": {
+        "password": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "isAdmin": {
+          "type": "boolean"
+        }
+      }
+    },
+    "UserResponseModel": {
+      "properties": {
+        "_id": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "isAdmin": {
+          "type": "boolean"
+        }
+      }
+    },
+    "AuthModel": {
+      "required": [
+        "name",
+        "password"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "AuthResponseModel": {
+      "properties": {
+        "auth_token": {
+          "type": "string"
+        }
+      }
+    },
+    "MetadataModel": {
+      "required": [
+        "filename",
+        "fileType",
+        "name",
+        "description"
+      ],
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "fileType": {
+          "type": "string",
+          "enum": ["jpeg", "jpg", "png", "gif", "pdf"]
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "MetadataResponseModel": {
+      "properties": {
+        "metadataId": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "fileType": {
+          "type": "string",
+          "enum": ["jpeg", "jpg", "png", "gif", "pdf"]
+        },
+        "fileHash": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "MetadataListResponseModel": {
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MetadataResponseModel"
+          }
+        },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "totalPages": {
+              "type": "integer"
+            },
+            "page": {
+              "type": "integer"
+            },
+            "size": {
+              "type": "integer"
+            },
+            "totalCount": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "FileUploadResponseModel": {
+      "properties": {
+        "filename": {
+          "type": "string"
+        }
+      }
+    },
+    "RawdataResponseModel": {
+      "properties": {
+        "metadataId": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "fileType": {
+          "type": "string",
+          "enum": ["jpeg", "jpg", "png", "gif", "pdf"]
+        },
+        "fileHash": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "thumbnail": {
+          "type": "string"
+        }
+      }
+    }
+  }
 }
